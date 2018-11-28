@@ -548,7 +548,7 @@
             $this->SetShowBottomPageNavigator(true);
             $this->setPrintListAvailable(true);
             $this->setPrintListRecordAvailable(false);
-            $this->setPrintOneRecordAvailable(false);
+            $this->setPrintOneRecordAvailable(true);
             $this->setAllowPrintSelectedRecords(false);
             $this->setExportListAvailable(array('pdf', 'excel', 'word', 'xml', 'csv'));
             $this->setExportSelectedRecordsAvailable(array());

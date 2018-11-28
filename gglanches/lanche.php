@@ -45,6 +45,7 @@
                     new StringField('nome', true),
                     new StringField('descricao', true),
                     new IntegerField('preco'),
+                    new IntegerField('lancheqtd', true),
                     new IntegerField('idprodutoestoque')
                 )
             );
@@ -83,7 +84,8 @@
                 new FilterColumn($this->dataset, 'nome', 'nome', 'Nome'),
                 new FilterColumn($this->dataset, 'descricao', 'descricao', 'Descrição'),
                 new FilterColumn($this->dataset, 'preco', 'preco', 'Valor R$'),
-                new FilterColumn($this->dataset, 'idprodutoestoque', 'idprodutoestoque_tipounidade', 'Idprodutoestoque')
+                new FilterColumn($this->dataset, 'idprodutoestoque', 'idprodutoestoque_tipounidade', 'Idprodutoestoque'),
+                new FilterColumn($this->dataset, 'lancheqtd', 'lancheqtd', 'Quantidade')
             );
         }
     
@@ -92,7 +94,8 @@
             $quickFilter
                 ->addColumn($columns['nome'])
                 ->addColumn($columns['descricao'])
-                ->addColumn($columns['preco']);
+                ->addColumn($columns['preco'])
+                ->addColumn($columns['lancheqtd']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -171,6 +174,19 @@
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
+            
+            //
+            // View column for lancheqtd field
+            //
+            $column = new NumberViewColumn('lancheqtd', 'lancheqtd', 'Quantidade', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
         }
     
         protected function AddSingleRecordViewColumns(Grid $grid)
@@ -205,6 +221,16 @@
             //
             $editor = new TextEdit('preco_edit');
             $editColumn = new CustomEditColumn('Valor R$', 'preco', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddEditColumn($editColumn);
+            
+            //
+            // Edit column for lancheqtd field
+            //
+            $editor = new TextEdit('lancheqtd_edit');
+            $editColumn = new CustomEditColumn('Quantidade', 'lancheqtd', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -247,6 +273,16 @@
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
+            
+            //
+            // Edit column for lancheqtd field
+            //
+            $editor = new TextEdit('lancheqtd_edit');
+            $editColumn = new CustomEditColumn('Quantidade', 'lancheqtd', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddInsertColumn($editColumn);
             $grid->SetShowAddButton(true && $this->GetSecurityInfo()->HasAddGrant());
         }
     
@@ -284,6 +320,16 @@
             $column->setThousandsSeparator('.');
             $column->setDecimalSeparator(',');
             $grid->AddPrintColumn($column);
+            
+            //
+            // View column for lancheqtd field
+            //
+            $column = new NumberViewColumn('lancheqtd', 'lancheqtd', 'Quantidade', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
@@ -314,6 +360,16 @@
             $column->setNumberAfterDecimal(2);
             $column->setThousandsSeparator('.');
             $column->setDecimalSeparator(',');
+            $grid->AddExportColumn($column);
+            
+            //
+            // View column for lancheqtd field
+            //
+            $column = new NumberViewColumn('lancheqtd', 'lancheqtd', 'Quantidade', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddExportColumn($column);
         }
     
@@ -400,7 +456,7 @@
             $this->SetShowBottomPageNavigator(true);
             $this->setPrintListAvailable(true);
             $this->setPrintListRecordAvailable(false);
-            $this->setPrintOneRecordAvailable(false);
+            $this->setPrintOneRecordAvailable(true);
             $this->setAllowPrintSelectedRecords(false);
             $this->setExportListAvailable(array('pdf', 'excel', 'word', 'xml', 'csv'));
             $this->setExportSelectedRecordsAvailable(array());

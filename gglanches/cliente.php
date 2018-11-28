@@ -203,6 +203,8 @@
             $editor->SetMaxLength(100);
             $editColumn = new CustomEditColumn('Email', 'email', $editor, $this->dataset);
             $editColumn->SetAllowSetToNull(true);
+            $validator = new EMailValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('EmailValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
         }
@@ -243,6 +245,8 @@
             $editor->SetMaxLength(100);
             $editColumn = new CustomEditColumn('Email', 'email', $editor, $this->dataset);
             $editColumn->SetAllowSetToNull(true);
+            $validator = new EMailValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('EmailValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             $grid->SetShowAddButton(true && $this->GetSecurityInfo()->HasAddGrant());
@@ -392,7 +396,7 @@
             $this->SetShowBottomPageNavigator(true);
             $this->setPrintListAvailable(true);
             $this->setPrintListRecordAvailable(false);
-            $this->setPrintOneRecordAvailable(false);
+            $this->setPrintOneRecordAvailable(true);
             $this->setAllowPrintSelectedRecords(false);
             $this->setExportListAvailable(array('pdf', 'excel', 'word', 'xml', 'csv'));
             $this->setExportSelectedRecordsAvailable(array());
