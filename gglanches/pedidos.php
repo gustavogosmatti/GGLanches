@@ -809,7 +809,7 @@
             //
             // View column for pedidos_itensvendas detail
             //
-            $column = new DetailColumn(array('codigopedido'), 'pedidos.itensvendas', 'pedidos_itensvendas_handler', $this->dataset, '<button class="btn btn-warning">Itens do Pedido</button>');
+            $column = new DetailColumn(array('codigopedido'), 'pedidos.itensvendas', 'pedidos_itensvendas_handler', $this->dataset, 'Detalhes do pedido');
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $grid->AddViewColumn($column);
             }
@@ -1161,7 +1161,7 @@
             $detailPage = new pedidos_itensvendasPage('pedidos_itensvendas', $this, array('itemcodpedido'), array('codigopedido'), $this->GetForeignKeyFields(), $this->CreateMasterDetailRecordGrid(), $this->dataset, GetCurrentUserPermissionSetForDataSource('pedidos.itensvendas'), 'UTF-8');
             $detailPage->SetRecordPermission(GetCurrentUserRecordPermissionsForDataSource('pedidos.itensvendas'));
             $detailPage->SetTitle('itensvenda');
-            $detailPage->SetMenuLabel('<button class="btn btn-warning">Itens do Pedido</button>');
+            $detailPage->SetMenuLabel('Detalhes do pedido');
             $detailPage->SetHeader(GetPagesHeader());
             $detailPage->SetFooter(GetPagesFooter());
             $detailPage->SetHttpHandlerName('pedidos_itensvendas_handler');

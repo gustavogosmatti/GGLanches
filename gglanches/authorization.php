@@ -23,7 +23,7 @@ $dataSourceRecordPermissions = array();
 $tableCaptions = array('cliente' => 'Cliente',
 'funcionario' => 'Funcionario',
 'pedidos' => 'Pedidos',
-'pedidos.itensvendas' => 'Pedidos-><button class="btn btn-warning">Itens do Pedido</button>',
+'pedidos.itensvendas' => 'Pedidos->Detalhes do pedido',
 'lanche' => 'Lanche',
 'relatorio' => 'Relatório');
 

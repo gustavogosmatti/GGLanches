@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 28-Nov-2018 às 22:27
+-- Generation Time: 28-Nov-2018 às 22:38
 -- Versão do servidor: 10.1.36-MariaDB
 -- versão do PHP: 7.2.11
 
@@ -35,13 +35,6 @@ CREATE TABLE `cliente` (
   `email` varchar(100) DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Extraindo dados da tabela `cliente`
---
-
-INSERT INTO `cliente` (`idcliente`, `nome`, `cpf`, `email`) VALUES
-(12, 'dasdas', '00000000000', 'asd@hotmail.com');
-
 -- --------------------------------------------------------
 
 --
@@ -55,14 +48,6 @@ CREATE TABLE `funcionario` (
   `cargo` varchar(150) NOT NULL,
   `status` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Extraindo dados da tabela `funcionario`
---
-
-INSERT INTO `funcionario` (`idfuncionario`, `nome`, `cpf`, `cargo`, `status`) VALUES
-(6, 'Gusatvo', '00000000000', 'asdsad', 0),
-(7, 'asdasd', '00000000000', 'dasdasdassd', NULL);
 
 -- --------------------------------------------------------
 
@@ -114,14 +99,6 @@ CREATE TABLE `lanche` (
   `idprodutoestoque` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Extraindo dados da tabela `lanche`
---
-
-INSERT INTO `lanche` (`idlanche`, `nome`, `descricao`, `preco`, `lancheqtd`, `idprodutoestoque`) VALUES
-(19, 'Quibe', 'De carne', 6.50, 0, NULL),
-(21, 'salada', 'asdasd', 50.00, 0, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -135,14 +112,6 @@ CREATE TABLE `pedidos` (
   `idcliente` int(11) DEFAULT '0',
   `idfuncionario` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Extraindo dados da tabela `pedidos`
---
-
-INSERT INTO `pedidos` (`idpedido`, `codigopedido`, `datapedido`, `idcliente`, `idfuncionario`) VALUES
-(5, '181128190528AU', '2018-11-27', 12, 6),
-(6, '181128191628FY', '2018-11-29', 12, 6);
 
 -- --------------------------------------------------------
 
