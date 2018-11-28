@@ -149,6 +149,8 @@
             //
             $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
             $column->SetOrderable(true);
+            $column->SetMaxLength(11);
+            $column->SetFullTextWindowHandlerName('clienteGrid_cpf_handler_list');
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $column->SetDescription('');
             $column->SetFixedWidth(null);
@@ -193,6 +195,14 @@
             $editColumn = new CustomEditColumn('CPF', 'cpf', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new DigitsValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('DigitsValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new CustomRegExpValidator('([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})', StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RegExpValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
             
@@ -235,6 +245,14 @@
             $editColumn = new CustomEditColumn('CPF', 'cpf', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new DigitsValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('DigitsValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $validator = new CustomRegExpValidator('([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})', StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RegExpValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             
@@ -273,6 +291,8 @@
             //
             $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
             $column->SetOrderable(true);
+            $column->SetMaxLength(11);
+            $column->SetFullTextWindowHandlerName('clienteGrid_cpf_handler_print');
             $grid->AddPrintColumn($column);
             
             //
@@ -301,6 +321,8 @@
             //
             $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
             $column->SetOrderable(true);
+            $column->SetMaxLength(11);
+            $column->SetFullTextWindowHandlerName('clienteGrid_cpf_handler_export');
             $grid->AddExportColumn($column);
             
             //
@@ -359,7 +381,7 @@
         {
             $result = new Grid($this, $this->dataset);
             if ($this->GetSecurityInfo()->HasDeleteGrant())
-               $result->SetAllowDeleteSelected(false);
+               $result->SetAllowDeleteSelected(true);
             else
                $result->SetAllowDeleteSelected(false);   
             
@@ -420,6 +442,14 @@
             GetApplication()->RegisterHTTPHandler($handler);
             
             //
+            // View column for cpf field
+            //
+            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column->SetOrderable(true);
+            $handler = new ShowTextBlobHandler($this->dataset, $this, 'clienteGrid_cpf_handler_list', $column);
+            GetApplication()->RegisterHTTPHandler($handler);
+            
+            //
             // View column for email field
             //
             $column = new TextViewColumn('email', 'email', 'Email', $this->dataset);
@@ -433,6 +463,14 @@
             $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
             $column->SetOrderable(true);
             $handler = new ShowTextBlobHandler($this->dataset, $this, 'clienteGrid_nome_handler_print', $column);
+            GetApplication()->RegisterHTTPHandler($handler);
+            
+            //
+            // View column for cpf field
+            //
+            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column->SetOrderable(true);
+            $handler = new ShowTextBlobHandler($this->dataset, $this, 'clienteGrid_cpf_handler_print', $column);
             GetApplication()->RegisterHTTPHandler($handler);
             
             //

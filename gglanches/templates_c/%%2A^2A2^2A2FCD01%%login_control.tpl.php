@@ -2,7 +2,7 @@
 smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escapeurl', 'login_control.tpl', 46, false),)), $this); ?>
 <div class="well pgui-login">
 
-    <p class="text-center"><img class="pgui-login-avatar" src="logo.png" alt="User avatar" /></p>
+    <p class="text-center"><img class="pgui-login-avatar" src="components/assets/img/login_avatar.png" alt="User avatar" /></p>
 
     <?php if (! is_null ( $this->_tpl_vars['SecurityFeedbackPositive'] )): ?>
     <div class="alert alert-success">

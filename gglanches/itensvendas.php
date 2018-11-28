@@ -31,21 +31,31 @@
     
     
     
-    class funcionarioPage extends Page
+    class itensvendasPage extends Page
     {
         protected function DoBeforeCreate()
         {
-            $this->dataset = new TableDataset(
-                MyPDOConnectionFactory::getInstance(),
-                GetConnectionOptions(),
-                '`funcionario`');
+            $selectQuery = 'select * from itens';
+            $insertQuery = array('insert into itens (itemproduto, itemvalor, itemqtd, itemcodpedido)
+            values (:itemproduto, :itemvalor, :itemqtd, :itemcodpedido)');
+            $updateQuery = array('UPDATE itens set 
+            itemproduto=:itemproduto, 
+            itemvalor =:itemvalor, 
+            itemqtd=:itemqtd, 
+            itemcodpedido=:itemcodpedido
+            WHERE iditem = :iditem');
+            $deleteQuery = array('DELETE from itens where iditem = :iditem');
+            $this->dataset = new QueryDataset(
+              MyPDOConnectionFactory::getInstance(), 
+              GetConnectionOptions(),
+              $selectQuery, $insertQuery, $updateQuery, $deleteQuery, 'itensvendas');
             $this->dataset->addFields(
                 array(
-                    new IntegerField('idfuncionario', true, true, true),
-                    new StringField('nome', true),
-                    new StringField('cpf', true),
-                    new StringField('cargo', true),
-                    new IntegerField('status')
+                    new IntegerField('iditem', false, true),
+                    new IntegerField('itemproduto', false, true),
+                    new IntegerField('itemvalor', false, true),
+                    new IntegerField('itemqtd', false, true),
+                    new StringField('itemcodpedido', false, true)
                 )
             );
         }
@@ -78,20 +88,22 @@
         protected function getFiltersColumns()
         {
             return array(
-                new FilterColumn($this->dataset, 'idfuncionario', 'idfuncionario', 'Idfuncionario'),
-                new FilterColumn($this->dataset, 'nome', 'nome', 'Nome'),
-                new FilterColumn($this->dataset, 'cpf', 'cpf', 'CPF'),
-                new FilterColumn($this->dataset, 'cargo', 'cargo', 'Cargo'),
-                new FilterColumn($this->dataset, 'status', 'status', 'Status')
+                new FilterColumn($this->dataset, 'iditem', 'iditem', 'Iditem'),
+                new FilterColumn($this->dataset, 'itemproduto', 'itemproduto', 'Itemproduto'),
+                new FilterColumn($this->dataset, 'itemvalor', 'itemvalor', 'Itemvalor'),
+                new FilterColumn($this->dataset, 'itemqtd', 'itemqtd', 'Itemqtd'),
+                new FilterColumn($this->dataset, 'itemcodpedido', 'itemcodpedido', 'Itemcodpedido')
             );
         }
     
         protected function setupQuickFilter(QuickFilter $quickFilter, FixedKeysArray $columns)
         {
             $quickFilter
-                ->addColumn($columns['nome'])
-                ->addColumn($columns['cpf'])
-                ->addColumn($columns['cargo']);
+                ->addColumn($columns['iditem'])
+                ->addColumn($columns['itemproduto'])
+                ->addColumn($columns['itemvalor'])
+                ->addColumn($columns['itemqtd'])
+                ->addColumn($columns['itemcodpedido']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -106,63 +118,68 @@
     
         protected function AddOperationsColumns(Grid $grid)
         {
-            $actions = $grid->getActions();
-            $actions->setCaption($this->GetLocalizerCaptions()->GetMessageString('Actions'));
-            $actions->setPosition(ActionList::POSITION_LEFT);
-            
-            if ($this->GetSecurityInfo()->HasEditGrant())
-            {
-                $operation = new AjaxOperation(OPERATION_EDIT,
-                    $this->GetLocalizerCaptions()->GetMessageString('Edit'),
-                    $this->GetLocalizerCaptions()->GetMessageString('Edit'), $this->dataset,
-                    $this->GetGridEditHandler(), $grid);
-                $operation->setUseImage(true);
-                $actions->addOperation($operation);
-                $operation->OnShow->AddListener('ShowEditButtonHandler', $this);
-            }
-            
-            if ($this->GetSecurityInfo()->HasDeleteGrant())
-            {
-                $operation = new LinkOperation($this->GetLocalizerCaptions()->GetMessageString('Delete'), OPERATION_DELETE, $this->dataset, $grid);
-                $operation->setUseImage(true);
-                $actions->addOperation($operation);
-                $operation->OnShow->AddListener('ShowDeleteButtonHandler', $this);
-                $operation->SetAdditionalAttribute('data-modal-operation', 'delete');
-                $operation->SetAdditionalAttribute('data-delete-handler-name', $this->GetModalGridDeleteHandler());
-            }
+    
         }
     
         protected function AddFieldColumns(Grid $grid, $withDetails = true)
         {
             //
-            // View column for nome field
+            // View column for iditem field
             //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
+            $column = new NumberViewColumn('iditem', 'iditem', 'Iditem', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_nome_handler_list');
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
             
             //
-            // View column for cpf field
+            // View column for itemproduto field
             //
-            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column = new NumberViewColumn('itemproduto', 'itemproduto', 'Itemproduto', $this->dataset);
             $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
             
             //
-            // View column for cargo field
+            // View column for itemvalor field
             //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
+            $column = new NumberViewColumn('itemvalor', 'itemvalor', 'Itemvalor', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_list');
+            $column->setNumberAfterDecimal(2);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator(',');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
+            
+            //
+            // View column for itemqtd field
+            //
+            $column = new NumberViewColumn('itemqtd', 'itemqtd', 'Itemqtd', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
+            
+            //
+            // View column for itemcodpedido field
+            //
+            $column = new TextViewColumn('itemcodpedido', 'itemcodpedido', 'Itemcodpedido', $this->dataset);
+            $column->SetOrderable(true);
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $column->SetDescription('');
             $column->SetFixedWidth(null);
@@ -172,70 +189,101 @@
         protected function AddSingleRecordViewColumns(Grid $grid)
         {
             //
-            // View column for nome field
+            // View column for iditem field
             //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
+            $column = new NumberViewColumn('iditem', 'iditem', 'Iditem', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_nome_handler_view');
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddSingleRecordViewColumn($column);
             
             //
-            // View column for cpf field
+            // View column for itemproduto field
             //
-            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column = new NumberViewColumn('itemproduto', 'itemproduto', 'Itemproduto', $this->dataset);
             $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddSingleRecordViewColumn($column);
             
             //
-            // View column for cargo field
+            // View column for itemvalor field
             //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
+            $column = new NumberViewColumn('itemvalor', 'itemvalor', 'Itemvalor', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_view');
+            $column->setNumberAfterDecimal(2);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator(',');
+            $grid->AddSingleRecordViewColumn($column);
+            
+            //
+            // View column for itemqtd field
+            //
+            $column = new NumberViewColumn('itemqtd', 'itemqtd', 'Itemqtd', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddSingleRecordViewColumn($column);
+            
+            //
+            // View column for itemcodpedido field
+            //
+            $column = new TextViewColumn('itemcodpedido', 'itemcodpedido', 'Itemcodpedido', $this->dataset);
+            $column->SetOrderable(true);
             $grid->AddSingleRecordViewColumn($column);
         }
     
         protected function AddEditColumns(Grid $grid)
         {
             //
-            // Edit column for nome field
+            // Edit column for iditem field
             //
-            $editor = new TextEdit('nome_edit');
-            $editColumn = new CustomEditColumn('Nome', 'nome', $editor, $this->dataset);
+            $editor = new SpinEdit('iditem_edit');
+            $editColumn = new CustomEditColumn('Iditem', 'iditem', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
             
             //
-            // Edit column for cpf field
+            // Edit column for itemproduto field
             //
-            $editor = new TextEdit('cpf_edit');
-            $editor->SetMaxLength(11);
-            $editColumn = new CustomEditColumn('CPF', 'cpf', $editor, $this->dataset);
+            $editor = new SpinEdit('itemproduto_edit');
+            $editColumn = new CustomEditColumn('Itemproduto', 'itemproduto', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new CustomRegExpValidator('([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})', StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RegExpValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
             
             //
-            // Edit column for cargo field
+            // Edit column for itemvalor field
             //
-            $editor = new TextEdit('cargo_edit');
-            $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
+            $editor = new TextEdit('itemvalor_edit');
+            $editColumn = new CustomEditColumn('Itemvalor', 'itemvalor', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddEditColumn($editColumn);
+            
+            //
+            // Edit column for itemqtd field
+            //
+            $editor = new SpinEdit('itemqtd_edit');
+            $editColumn = new CustomEditColumn('Itemqtd', 'itemqtd', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddEditColumn($editColumn);
+            
+            //
+            // Edit column for itemcodpedido field
+            //
+            $editor = new TextEdit('itemcodpedido_edit');
+            $editColumn = new CustomEditColumn('Itemcodpedido', 'itemcodpedido', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
@@ -244,42 +292,51 @@
         protected function AddMultiEditColumns(Grid $grid)
         {
             //
-            // Edit column for nome field
+            // Edit column for iditem field
             //
-            $editor = new TextEdit('nome_edit');
-            $editColumn = new CustomEditColumn('Nome', 'nome', $editor, $this->dataset);
+            $editor = new SpinEdit('iditem_edit');
+            $editColumn = new CustomEditColumn('Iditem', 'iditem', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddMultiEditColumn($editColumn);
             
             //
-            // Edit column for cpf field
+            // Edit column for itemproduto field
             //
-            $editor = new TextEdit('cpf_edit');
-            $editor->SetMaxLength(11);
-            $editColumn = new CustomEditColumn('CPF', 'cpf', $editor, $this->dataset);
+            $editor = new SpinEdit('itemproduto_edit');
+            $editColumn = new CustomEditColumn('Itemproduto', 'itemproduto', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new CustomRegExpValidator('([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})', StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RegExpValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddMultiEditColumn($editColumn);
             
             //
-            // Edit column for cargo field
+            // Edit column for itemvalor field
             //
-            $editor = new TextEdit('cargo_edit');
-            $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
+            $editor = new TextEdit('itemvalor_edit');
+            $editColumn = new CustomEditColumn('Itemvalor', 'itemvalor', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddMultiEditColumn($editColumn);
+            
+            //
+            // Edit column for itemqtd field
+            //
+            $editor = new SpinEdit('itemqtd_edit');
+            $editColumn = new CustomEditColumn('Itemqtd', 'itemqtd', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddMultiEditColumn($editColumn);
+            
+            //
+            // Edit column for itemcodpedido field
+            //
+            $editor = new TextEdit('itemcodpedido_edit');
+            $editColumn = new CustomEditColumn('Itemcodpedido', 'itemcodpedido', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddMultiEditColumn($editColumn);
@@ -288,46 +345,55 @@
         protected function AddInsertColumns(Grid $grid)
         {
             //
-            // Edit column for nome field
+            // Edit column for iditem field
             //
-            $editor = new TextEdit('nome_edit');
-            $editColumn = new CustomEditColumn('Nome', 'nome', $editor, $this->dataset);
+            $editor = new SpinEdit('iditem_edit');
+            $editColumn = new CustomEditColumn('Iditem', 'iditem', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             
             //
-            // Edit column for cpf field
+            // Edit column for itemproduto field
             //
-            $editor = new TextEdit('cpf_edit');
-            $editor->SetMaxLength(11);
-            $editColumn = new CustomEditColumn('CPF', 'cpf', $editor, $this->dataset);
+            $editor = new SpinEdit('itemproduto_edit');
+            $editColumn = new CustomEditColumn('Itemproduto', 'itemproduto', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new CustomRegExpValidator('([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})', StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RegExpValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             
             //
-            // Edit column for cargo field
+            // Edit column for itemvalor field
             //
-            $editor = new TextEdit('cargo_edit');
-            $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
+            $editor = new TextEdit('itemvalor_edit');
+            $editColumn = new CustomEditColumn('Itemvalor', 'itemvalor', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
-            $grid->SetShowAddButton(true && $this->GetSecurityInfo()->HasAddGrant());
+            
+            //
+            // Edit column for itemqtd field
+            //
+            $editor = new SpinEdit('itemqtd_edit');
+            $editColumn = new CustomEditColumn('Itemqtd', 'itemqtd', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddInsertColumn($editColumn);
+            
+            //
+            // Edit column for itemcodpedido field
+            //
+            $editor = new TextEdit('itemcodpedido_edit');
+            $editColumn = new CustomEditColumn('Itemcodpedido', 'itemcodpedido', $editor, $this->dataset);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddInsertColumn($editColumn);
+            $grid->SetShowAddButton(false && $this->GetSecurityInfo()->HasAddGrant());
         }
     
         private function AddMultiUploadColumn(Grid $grid)
@@ -338,84 +404,150 @@
         protected function AddPrintColumns(Grid $grid)
         {
             //
-            // View column for nome field
+            // View column for iditem field
             //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
+            $column = new NumberViewColumn('iditem', 'iditem', 'Iditem', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_nome_handler_print');
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddPrintColumn($column);
             
             //
-            // View column for cpf field
+            // View column for itemproduto field
             //
-            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column = new NumberViewColumn('itemproduto', 'itemproduto', 'Itemproduto', $this->dataset);
             $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddPrintColumn($column);
             
             //
-            // View column for cargo field
+            // View column for itemvalor field
             //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
+            $column = new NumberViewColumn('itemvalor', 'itemvalor', 'Itemvalor', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_print');
+            $column->setNumberAfterDecimal(2);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator(',');
+            $grid->AddPrintColumn($column);
+            
+            //
+            // View column for itemqtd field
+            //
+            $column = new NumberViewColumn('itemqtd', 'itemqtd', 'Itemqtd', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddPrintColumn($column);
+            
+            //
+            // View column for itemcodpedido field
+            //
+            $column = new TextViewColumn('itemcodpedido', 'itemcodpedido', 'Itemcodpedido', $this->dataset);
+            $column->SetOrderable(true);
             $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
         {
             //
-            // View column for nome field
+            // View column for iditem field
             //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
+            $column = new NumberViewColumn('iditem', 'iditem', 'Iditem', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_nome_handler_export');
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddExportColumn($column);
             
             //
-            // View column for cpf field
+            // View column for itemproduto field
             //
-            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column = new NumberViewColumn('itemproduto', 'itemproduto', 'Itemproduto', $this->dataset);
             $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddExportColumn($column);
             
             //
-            // View column for cargo field
+            // View column for itemvalor field
             //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
+            $column = new NumberViewColumn('itemvalor', 'itemvalor', 'Itemvalor', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_export');
+            $column->setNumberAfterDecimal(2);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator(',');
+            $grid->AddExportColumn($column);
+            
+            //
+            // View column for itemqtd field
+            //
+            $column = new NumberViewColumn('itemqtd', 'itemqtd', 'Itemqtd', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddExportColumn($column);
+            
+            //
+            // View column for itemcodpedido field
+            //
+            $column = new TextViewColumn('itemcodpedido', 'itemcodpedido', 'Itemcodpedido', $this->dataset);
+            $column->SetOrderable(true);
             $grid->AddExportColumn($column);
         }
     
         private function AddCompareColumns(Grid $grid)
         {
             //
-            // View column for nome field
+            // View column for iditem field
             //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
+            $column = new NumberViewColumn('iditem', 'iditem', 'Iditem', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_nome_handler_compare');
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddCompareColumn($column);
             
             //
-            // View column for cpf field
+            // View column for itemproduto field
             //
-            $column = new TextViewColumn('cpf', 'cpf', 'CPF', $this->dataset);
+            $column = new NumberViewColumn('itemproduto', 'itemproduto', 'Itemproduto', $this->dataset);
             $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddCompareColumn($column);
             
             //
-            // View column for cargo field
+            // View column for itemvalor field
             //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
+            $column = new NumberViewColumn('itemvalor', 'itemvalor', 'Itemvalor', $this->dataset);
             $column->SetOrderable(true);
-            $column->SetMaxLength(75);
-            $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_compare');
+            $column->setNumberAfterDecimal(2);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator(',');
+            $grid->AddCompareColumn($column);
+            
+            //
+            // View column for itemqtd field
+            //
+            $column = new NumberViewColumn('itemqtd', 'itemqtd', 'Itemqtd', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddCompareColumn($column);
+            
+            //
+            // View column for itemcodpedido field
+            //
+            $column = new TextViewColumn('itemcodpedido', 'itemcodpedido', 'Itemcodpedido', $this->dataset);
+            $column->SetOrderable(true);
             $grid->AddCompareColumn($column);
         }
     
@@ -450,17 +582,12 @@
         {
             return ;
         }
-        
-        public function GetEnableModalGridInsert() { return true; }
-        public function GetEnableModalGridEdit() { return true; }
-        
-        protected function GetEnableModalGridDelete() { return true; }
     
         protected function CreateGrid()
         {
             $result = new Grid($this, $this->dataset);
             if ($this->GetSecurityInfo()->HasDeleteGrant())
-               $result->SetAllowDeleteSelected(true);
+               $result->SetAllowDeleteSelected(false);
             else
                $result->SetAllowDeleteSelected(false);   
             
@@ -474,7 +601,6 @@
             $result->SetViewMode(ViewMode::TABLE);
             $result->setEnableRuntimeCustomization(false);
             $result->SetShowUpdateLink(false);
-            $result->setAllowAddMultipleRecords(false);
             $result->setMultiEditAllowed($this->GetSecurityInfo()->HasEditGrant() && false);
             $result->setTableBordered(false);
             $result->setTableCondensed(false);
@@ -497,7 +623,7 @@
             $this->SetShowBottomPageNavigator(true);
             $this->setPrintListAvailable(true);
             $this->setPrintListRecordAvailable(false);
-            $this->setPrintOneRecordAvailable(true);
+            $this->setPrintOneRecordAvailable(false);
             $this->setAllowPrintSelectedRecords(false);
             $this->setExportListAvailable(array('pdf', 'excel', 'word', 'xml', 'csv'));
             $this->setExportSelectedRecordsAvailable(array());
@@ -512,69 +638,8 @@
         }
     
         protected function doRegisterHandlers() {
-            //
-            // View column for nome field
-            //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_nome_handler_list', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
             
-            //
-            // View column for cargo field
-            //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_cargo_handler_list', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
             
-            //
-            // View column for nome field
-            //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_nome_handler_print', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
-            
-            //
-            // View column for cargo field
-            //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_cargo_handler_print', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
-            
-            //
-            // View column for nome field
-            //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_nome_handler_compare', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
-            
-            //
-            // View column for cargo field
-            //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_cargo_handler_compare', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
-            
-            //
-            // View column for nome field
-            //
-            $column = new TextViewColumn('nome', 'nome', 'Nome', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_nome_handler_view', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
-            
-            //
-            // View column for cargo field
-            //
-            $column = new TextViewColumn('cargo', 'cargo', 'Cargo', $this->dataset);
-            $column->SetOrderable(true);
-            $handler = new ShowTextBlobHandler($this->dataset, $this, 'funcionarioGrid_cargo_handler_view', $column);
-            GetApplication()->RegisterHTTPHandler($handler);
         }
        
         protected function doCustomRenderColumn($fieldName, $fieldData, $rowData, &$customText, &$handled)
@@ -723,12 +788,12 @@
 
     try
     {
-        $Page = new funcionarioPage("funcionario", "funcionario.php", GetCurrentUserPermissionSetForDataSource("funcionario"), 'UTF-8');
-        $Page->SetTitle('Funcionario');
-        $Page->SetMenuLabel('Funcionario');
+        $Page = new itensvendasPage("itensvendas", "itensvendas.php", GetCurrentUserPermissionSetForDataSource("itensvendas"), 'UTF-8');
+        $Page->SetTitle('Itensvendas');
+        $Page->SetMenuLabel('Itensvendas');
         $Page->SetHeader(GetPagesHeader());
         $Page->SetFooter(GetPagesFooter());
-        $Page->SetRecordPermission(GetCurrentUserRecordPermissionsForDataSource("funcionario"));
+        $Page->SetRecordPermission(GetCurrentUserRecordPermissionsForDataSource("itensvendas"));
         GetApplication()->SetMainPage($Page);
         GetApplication()->Run();
     }

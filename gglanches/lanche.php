@@ -419,7 +419,7 @@
         {
             $result = new Grid($this, $this->dataset);
             if ($this->GetSecurityInfo()->HasDeleteGrant())
-               $result->SetAllowDeleteSelected(false);
+               $result->SetAllowDeleteSelected(true);
             else
                $result->SetAllowDeleteSelected(false);   
             

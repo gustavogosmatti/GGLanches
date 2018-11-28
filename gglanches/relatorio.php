@@ -90,7 +90,7 @@
         {
             $chart = new Chart('Chart01', Chart::TYPE_AREA, $this->dataset);
             $chart->setTitle('Comparativo');
-            $chart->setHeight(300);
+            $chart->setHeight(500);
             $chart->setDomainColumn('iditem', 'iditem', 'int');
             $chart->addDataColumn('pedtotal', 'Total', 'float')
                   ->setTooltipColumn('data')

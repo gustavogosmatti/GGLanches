@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 28-Nov-2018 às 21:04
+-- Generation Time: 28-Nov-2018 às 22:27
 -- Versão do servidor: 10.1.36-MariaDB
 -- versão do PHP: 7.2.11
 
@@ -40,10 +40,7 @@ CREATE TABLE `cliente` (
 --
 
 INSERT INTO `cliente` (`idcliente`, `nome`, `cpf`, `email`) VALUES
-(2, 'Alfredo Afonso', '00000000000', 'asdasds@hotmail.com'),
-(3, 'dfsdfsdf', '00000000000', 'asdasdasdads'),
-(4, 'NANO', '54546546545', 'guasd@hotmail.com'),
-(5, 'Valdir Gosmatti de Lima', '00000000000', 'valdir@hotmail.com');
+(12, 'dasdas', '00000000000', 'asd@hotmail.com');
 
 -- --------------------------------------------------------
 
@@ -64,7 +61,8 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`idfuncionario`, `nome`, `cpf`, `cargo`, `status`) VALUES
-(6, 'Gusatvo', '00000000000', 'asdsad', 0);
+(6, 'Gusatvo', '00000000000', 'asdsad', 0),
+(7, 'asdasd', '00000000000', 'dasdasdassd', NULL);
 
 -- --------------------------------------------------------
 
@@ -96,7 +94,10 @@ INSERT INTO `itens` (`iditem`, `itemproduto`, `itemvalor`, `itemqtd`, `itemcodpe
 (84, 3, 10.00, 2, '181128150628FJ'),
 (85, 18, 4.50, 10, '181128151128YT'),
 (86, 2, 3.00, 1, '181128174628SV'),
-(87, 3, 10.00, 6, '181128180228FA');
+(87, 3, 10.00, 6, '181128180228FA'),
+(88, 19, 6.50, 8, '181128181928XU'),
+(89, 19, 6.50, 100, '181128190528AU'),
+(90, 21, 50.00, 50, '181128191628FY');
 
 -- --------------------------------------------------------
 
@@ -118,12 +119,8 @@ CREATE TABLE `lanche` (
 --
 
 INSERT INTO `lanche` (`idlanche`, `nome`, `descricao`, `preco`, `lancheqtd`, `idprodutoestoque`) VALUES
-(2, 'coxinha', 'tem frango', 3.00, 5, NULL),
-(3, 'x tudo', 'tem tudo', 10.00, 2, NULL),
-(14, 'X Salada', 'Alface, tomate, queijo ...', 5.00, 0, NULL),
-(17, 'dasdasd', 'nao existe', 15.00, 10, NULL),
-(18, 'x burguer', 'tem carne', 4.50, 0, NULL),
-(19, 'Quibe', 'De carne', 6.50, 8, NULL);
+(19, 'Quibe', 'De carne', 6.50, 0, NULL),
+(21, 'salada', 'asdasd', 50.00, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -144,8 +141,8 @@ CREATE TABLE `pedidos` (
 --
 
 INSERT INTO `pedidos` (`idpedido`, `codigopedido`, `datapedido`, `idcliente`, `idfuncionario`) VALUES
-(2, '181128174628SV', '2018-11-27', 4, 6),
-(3, '181128180228FA', '2018-11-29', 5, 6);
+(5, '181128190528AU', '2018-11-27', 12, 6),
+(6, '181128191628FY', '2018-11-29', 12, 6);
 
 -- --------------------------------------------------------
 
@@ -269,31 +266,31 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT for table `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `idfuncionario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idfuncionario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `itens`
 --
 ALTER TABLE `itens`
-  MODIFY `iditem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `iditem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `lanche`
 --
 ALTER TABLE `lanche`
-  MODIFY `idlanche` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `idlanche` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `idpedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idpedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `produtoestoque`
