@@ -88,14 +88,14 @@
     
         protected function setupCharts()
         {
-            $chart = new Chart('Chart01', Chart::TYPE_AREA, $this->dataset);
+            $chart = new Chart('Chart01', Chart::TYPE_COLUMN, $this->dataset);
             $chart->setTitle('Comparativo');
             $chart->setHeight(500);
-            $chart->setDomainColumn('iditem', 'iditem', 'int');
+            $chart->setDomainColumn('data', 'data', 'string');
             $chart->addDataColumn('pedtotal', 'Total', 'float')
                   ->setTooltipColumn('data')
                   ->setAnnotationColumn('pedtotal')
-                  ->setAnnotationTextColumn('data');
+                  ->setAnnotationTextColumn('pedtotal');
             $this->addChart($chart, 0, ChartPosition::BEFORE_GRID, 12);
         }
     
@@ -124,8 +124,7 @@
                 ->addColumn($columns['datapedido'])
                 ->addColumn($columns['idcliente'])
                 ->addColumn($columns['idfuncionario'])
-                ->addColumn($columns['pedtotal'])
-                ->addColumn($columns['data']);
+                ->addColumn($columns['pedtotal']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -201,26 +200,11 @@
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
-            
-            //
-            // View column for data field
-            //
-            $column = new TextViewColumn('data', 'data', 'Data', $this->dataset);
-            $column->SetOrderable(true);
-            $column->setMinimalVisibility(ColumnVisibility::PHONE);
-            $column->SetDescription('');
-            $column->SetFixedWidth(null);
-            $grid->AddViewColumn($column);
         }
     
         protected function AddSingleRecordViewColumns(Grid $grid)
         {
-            //
-            // View column for data field
-            //
-            $column = new TextViewColumn('data', 'data', 'Data', $this->dataset);
-            $column->SetOrderable(true);
-            $grid->AddSingleRecordViewColumn($column);
+    
         }
     
         protected function AddEditColumns(Grid $grid)
@@ -260,7 +244,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -286,7 +271,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -301,16 +286,6 @@
             //
             $editor = new TextEdit('pedtotal_edit');
             $editColumn = new CustomEditColumn('Total', 'pedtotal', $editor, $this->dataset);
-            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $this->ApplyCommonColumnEditProperties($editColumn);
-            $grid->AddEditColumn($editColumn);
-            
-            //
-            // Edit column for data field
-            //
-            $editor = new TextEdit('data_edit');
-            $editColumn = new CustomEditColumn('Data', 'data', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -354,7 +329,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -380,7 +356,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -395,16 +371,6 @@
             //
             $editor = new TextEdit('pedtotal_edit');
             $editColumn = new CustomEditColumn('Total', 'pedtotal', $editor, $this->dataset);
-            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $this->ApplyCommonColumnEditProperties($editColumn);
-            $grid->AddMultiEditColumn($editColumn);
-            
-            //
-            // Edit column for data field
-            //
-            $editor = new TextEdit('data_edit');
-            $editColumn = new CustomEditColumn('Data', 'data', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -448,7 +414,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -474,7 +441,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -489,16 +456,6 @@
             //
             $editor = new TextEdit('pedtotal_edit');
             $editColumn = new CustomEditColumn('Total', 'pedtotal', $editor, $this->dataset);
-            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $this->ApplyCommonColumnEditProperties($editColumn);
-            $grid->AddInsertColumn($editColumn);
-            
-            //
-            // Edit column for data field
-            //
-            $editor = new TextEdit('data_edit');
-            $editColumn = new CustomEditColumn('Data', 'data', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -551,13 +508,6 @@
             $column->setThousandsSeparator('.');
             $column->setDecimalSeparator(',');
             $grid->AddPrintColumn($column);
-            
-            //
-            // View column for data field
-            //
-            $column = new TextViewColumn('data', 'data', 'Data', $this->dataset);
-            $column->SetOrderable(true);
-            $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
@@ -600,23 +550,11 @@
             $column->setThousandsSeparator('.');
             $column->setDecimalSeparator(',');
             $grid->AddExportColumn($column);
-            
-            //
-            // View column for data field
-            //
-            $column = new TextViewColumn('data', 'data', 'Data', $this->dataset);
-            $column->SetOrderable(true);
-            $grid->AddExportColumn($column);
         }
     
         private function AddCompareColumns(Grid $grid)
         {
-            //
-            // View column for data field
-            //
-            $column = new TextViewColumn('data', 'data', 'Data', $this->dataset);
-            $column->SetOrderable(true);
-            $grid->AddCompareColumn($column);
+    
         }
     
         private function AddCompareHeaderColumns(Grid $grid)
@@ -716,7 +654,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -733,7 +672,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -749,7 +688,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -766,7 +706,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -782,7 +722,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -799,7 +740,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -958,8 +899,8 @@
     try
     {
         $Page = new relatorioPage("relatorio", "relatorio.php", GetCurrentUserPermissionSetForDataSource("relatorio"), 'UTF-8');
-        $Page->SetTitle('Relatorio');
-        $Page->SetMenuLabel('Relatório');
+        $Page->SetTitle('Relatorio de Vendas');
+        $Page->SetMenuLabel('Relatório de Vendas');
         $Page->SetHeader(GetPagesHeader());
         $Page->SetFooter(GetPagesFooter());
         $Page->SetRecordPermission(GetCurrentUserRecordPermissionsForDataSource("relatorio"));

@@ -219,7 +219,8 @@
                     new StringField('descricao', true),
                     new IntegerField('preco'),
                     new IntegerField('lancheqtd', true),
-                    new IntegerField('idprodutoestoque')
+                    new IntegerField('idprodutoestoque'),
+                    new IntegerField('vezespedido', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -291,7 +292,8 @@
                     new StringField('descricao', true),
                     new IntegerField('preco'),
                     new IntegerField('lancheqtd', true),
-                    new IntegerField('idprodutoestoque')
+                    new IntegerField('idprodutoestoque'),
+                    new IntegerField('vezespedido', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -455,7 +457,8 @@
                     new StringField('descricao', true),
                     new IntegerField('preco'),
                     new IntegerField('lancheqtd', true),
-                    new IntegerField('idprodutoestoque')
+                    new IntegerField('idprodutoestoque'),
+                    new IntegerField('vezespedido', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -473,7 +476,8 @@
                     new StringField('descricao', true),
                     new IntegerField('preco'),
                     new IntegerField('lancheqtd', true),
-                    new IntegerField('idprodutoestoque')
+                    new IntegerField('idprodutoestoque'),
+                    new IntegerField('vezespedido', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -588,7 +592,7 @@
             
             
             //removendo do estoque
-            $sql = "UPDATE lanche SET lancheqtd = ( lancheqtd - {$qtd} ) WHERE idlanche = {$id}";
+            $sql = "UPDATE lanche SET lancheqtd = ( lancheqtd - {$qtd} ), vezespedido = vezespedido+1  WHERE idlanche = {$id}";
             $this->GetConnection()->ExecSQL($sql);
         }
     
@@ -598,6 +602,7 @@
             
             $id = $rowData['itemproduto'];
             $qtd = $rowData['itemqtd'] - $oldRowData['itemqtd'];
+            
             
             
             //removendo ou adicionando ao estoque
@@ -614,7 +619,7 @@
             
             
             //voltar ao estoque apos remover do pedido
-            $sql = "UPDATE lanche SET lancheqtd = ( lancheqtd + {$qtd} ) WHERE idlanche = {$id}";
+            $sql = "UPDATE lanche SET lancheqtd = ( lancheqtd + {$qtd} ), vezespedido = vezespedido - 1 WHERE idlanche = {$id}";
             $this->GetConnection()->ExecSQL($sql);
         }
     
@@ -888,7 +893,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -914,10 +920,12 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
+            $lookupDataset->AddCustomCondition(EnvVariablesUtils::EvaluateVariableTemplate($this->GetColumnVariableContainer(), 'funcionario.status = 1
+            '));
             $editColumn = new DynamicLookupEditColumn('Funcionário', 'idfuncionario', 'idfuncionario_nome', 'edit_idfuncionario_nome_search', $editor, $this->dataset, $lookupDataset, 'idfuncionario', 'nome', '');
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
@@ -958,7 +966,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -984,10 +993,12 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
+            $lookupDataset->AddCustomCondition(EnvVariablesUtils::EvaluateVariableTemplate($this->GetColumnVariableContainer(), 'funcionario.status = 1
+            '));
             $editColumn = new DynamicLookupEditColumn('Funcionário', 'idfuncionario', 'idfuncionario_nome', 'insert_idfuncionario_nome_search', $editor, $this->dataset, $lookupDataset, 'idfuncionario', 'nome', '');
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
@@ -1177,7 +1188,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -1194,10 +1206,12 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
+            $lookupDataset->AddCustomCondition(EnvVariablesUtils::EvaluateVariableTemplate($this->GetColumnVariableContainer(), 'funcionario.status = 1
+            '));
             $handler = new DynamicSearchHandler($lookupDataset, $this, 'insert_idfuncionario_nome_search', 'idfuncionario', 'nome', null, 20);
             GetApplication()->RegisterHTTPHandler($handler);
             
@@ -1210,7 +1224,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
@@ -1227,10 +1242,12 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
             $lookupDataset->setOrderByField('nome', 'ASC');
+            $lookupDataset->AddCustomCondition(EnvVariablesUtils::EvaluateVariableTemplate($this->GetColumnVariableContainer(), 'funcionario.status = 1
+            '));
             $handler = new DynamicSearchHandler($lookupDataset, $this, 'edit_idfuncionario_nome_search', 'idfuncionario', 'nome', null, 20);
             GetApplication()->RegisterHTTPHandler($handler);
         }
@@ -1299,7 +1316,13 @@
     
         protected function doAfterInsertRecord($page, $rowData, $tableName, &$success, &$message, &$messageDisplayTime)
         {
-    
+            $id = $rowData['idcliente'];
+            
+            
+            
+            //removendo do estoque
+            $sql = "UPDATE cliente SET frequencia = frequencia+1 WHERE idcliente = {$id}";
+            $this->GetConnection()->ExecSQL($sql);
         }
     
         protected function doAfterUpdateRecord($page, $oldRowData, $rowData, $tableName, &$success, &$message, &$messageDisplayTime)

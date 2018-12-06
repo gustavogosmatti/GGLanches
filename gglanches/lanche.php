@@ -46,7 +46,8 @@
                     new StringField('descricao', true),
                     new IntegerField('preco'),
                     new IntegerField('lancheqtd', true),
-                    new IntegerField('idprodutoestoque')
+                    new IntegerField('idprodutoestoque'),
+                    new IntegerField('vezespedido', true)
                 )
             );
             $this->dataset->AddLookupField('idprodutoestoque', 'produtoestoque', new IntegerField('idprodutoestoque'), new StringField('tipounidade', false, false, false, false, 'idprodutoestoque_tipounidade', 'idprodutoestoque_tipounidade_produtoestoque'), 'idprodutoestoque_tipounidade_produtoestoque');
@@ -74,7 +75,17 @@
     
         protected function setupCharts()
         {
-    
+            $sql = 'SELECT * FROM (%source%) c
+            GROUP BY idlanche
+            ORDER BY idlanche';$chart = new Chart('Chart01', Chart::TYPE_COLUMN, $this->dataset, $sql);
+            $chart->setTitle('Quantidade de vezes pedido');
+            $chart->setHeight(500);
+            $chart->setDomainColumn('nome', 'nome', 'string');
+            $chart->addDataColumn('vezespedido', 'QTD VEZES PEDIDO', 'int')
+                  ->setTooltipColumn('nome')
+                  ->setAnnotationColumn('vezespedido')
+                  ->setAnnotationTextColumn('nome');
+            $this->addChart($chart, 0, ChartPosition::BEFORE_GRID, 12);
         }
     
         protected function getFiltersColumns()
@@ -85,7 +96,8 @@
                 new FilterColumn($this->dataset, 'descricao', 'descricao', 'Descrição'),
                 new FilterColumn($this->dataset, 'preco', 'preco', 'Valor R$'),
                 new FilterColumn($this->dataset, 'idprodutoestoque', 'idprodutoestoque_tipounidade', 'Idprodutoestoque'),
-                new FilterColumn($this->dataset, 'lancheqtd', 'lancheqtd', 'Quantidade')
+                new FilterColumn($this->dataset, 'lancheqtd', 'lancheqtd', 'Quantidade'),
+                new FilterColumn($this->dataset, 'vezespedido', 'vezespedido', 'Qtd vezes pedido')
             );
         }
     
@@ -95,7 +107,8 @@
                 ->addColumn($columns['nome'])
                 ->addColumn($columns['descricao'])
                 ->addColumn($columns['preco'])
-                ->addColumn($columns['lancheqtd']);
+                ->addColumn($columns['lancheqtd'])
+                ->addColumn($columns['vezespedido']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -187,6 +200,19 @@
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
+            
+            //
+            // View column for vezespedido field
+            //
+            $column = new NumberViewColumn('vezespedido', 'vezespedido', 'Qtd vezes pedido', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
         }
     
         protected function AddSingleRecordViewColumns(Grid $grid)
@@ -211,8 +237,7 @@
             //
             $editor = new TextAreaEdit('descricao_edit', 50, 8);
             $editColumn = new CustomEditColumn('Descrição', 'descricao', $editor, $this->dataset);
-            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
+            $editColumn->SetAllowSetToNull(true);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
             
@@ -259,8 +284,7 @@
             //
             $editor = new TextAreaEdit('descricao_edit', 50, 8);
             $editColumn = new CustomEditColumn('Descrição', 'descricao', $editor, $this->dataset);
-            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
+            $editColumn->SetAllowSetToNull(true);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             
@@ -330,6 +354,16 @@
             $column->setThousandsSeparator('.');
             $column->setDecimalSeparator('');
             $grid->AddPrintColumn($column);
+            
+            //
+            // View column for vezespedido field
+            //
+            $column = new NumberViewColumn('vezespedido', 'vezespedido', 'Qtd vezes pedido', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
@@ -366,6 +400,16 @@
             // View column for lancheqtd field
             //
             $column = new NumberViewColumn('lancheqtd', 'lancheqtd', 'Quantidade', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddExportColumn($column);
+            
+            //
+            // View column for vezespedido field
+            //
+            $column = new NumberViewColumn('vezespedido', 'vezespedido', 'Qtd vezes pedido', $this->dataset);
             $column->SetOrderable(true);
             $column->setNumberAfterDecimal(0);
             $column->setThousandsSeparator('.');

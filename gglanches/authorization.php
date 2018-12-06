@@ -21,11 +21,11 @@ $appGrants = array();
 $dataSourceRecordPermissions = array();
 
 $tableCaptions = array('cliente' => 'Cliente',
-'funcionario' => 'Funcionario',
+'funcionario' => 'Funcionário',
 'pedidos' => 'Pedidos',
 'pedidos.itensvendas' => 'Pedidos->Detalhes do pedido',
 'lanche' => 'Lanche',
-'relatorio' => 'Relatório');
+'relatorio' => 'Relatório de Vendas');
 
 $usersTableInfo = array(
     'TableName' => 'usuarios',

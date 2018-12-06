@@ -45,7 +45,7 @@
                     new StringField('nome', true),
                     new StringField('cpf', true),
                     new StringField('cargo', true),
-                    new IntegerField('status')
+                    new BooleanField('status', true)
                 )
             );
         }
@@ -82,7 +82,7 @@
                 new FilterColumn($this->dataset, 'nome', 'nome', 'Nome'),
                 new FilterColumn($this->dataset, 'cpf', 'cpf', 'CPF'),
                 new FilterColumn($this->dataset, 'cargo', 'cargo', 'Cargo'),
-                new FilterColumn($this->dataset, 'status', 'status', 'Status')
+                new FilterColumn($this->dataset, 'status', 'status', 'Ativo')
             );
         }
     
@@ -91,7 +91,8 @@
             $quickFilter
                 ->addColumn($columns['nome'])
                 ->addColumn($columns['cpf'])
-                ->addColumn($columns['cargo']);
+                ->addColumn($columns['cargo'])
+                ->addColumn($columns['status']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -119,16 +120,6 @@
                 $operation->setUseImage(true);
                 $actions->addOperation($operation);
                 $operation->OnShow->AddListener('ShowEditButtonHandler', $this);
-            }
-            
-            if ($this->GetSecurityInfo()->HasDeleteGrant())
-            {
-                $operation = new LinkOperation($this->GetLocalizerCaptions()->GetMessageString('Delete'), OPERATION_DELETE, $this->dataset, $grid);
-                $operation->setUseImage(true);
-                $actions->addOperation($operation);
-                $operation->OnShow->AddListener('ShowDeleteButtonHandler', $this);
-                $operation->SetAdditionalAttribute('data-modal-operation', 'delete');
-                $operation->SetAdditionalAttribute('data-delete-handler-name', $this->GetModalGridDeleteHandler());
             }
         }
     
@@ -167,6 +158,17 @@
             $column->SetDescription('');
             $column->SetFixedWidth(null);
             $grid->AddViewColumn($column);
+            
+            //
+            // View column for status field
+            //
+            $column = new CheckboxViewColumn('status', 'status', 'Ativo', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setDisplayValues('<span class="pg-row-checkbox checked"></span>', '<span class="pg-row-checkbox"></span>');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
         }
     
         protected function AddSingleRecordViewColumns(Grid $grid)
@@ -194,6 +196,14 @@
             $column->SetOrderable(true);
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_view');
+            $grid->AddSingleRecordViewColumn($column);
+            
+            //
+            // View column for status field
+            //
+            $column = new CheckboxViewColumn('status', 'status', 'Ativo', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setDisplayValues('<span class="pg-row-checkbox checked"></span>', '<span class="pg-row-checkbox"></span>');
             $grid->AddSingleRecordViewColumn($column);
         }
     
@@ -233,10 +243,15 @@
             $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddEditColumn($editColumn);
+            
+            //
+            // Edit column for status field
+            //
+            $editor = new CheckBox('status_edit');
+            $editColumn = new CustomEditColumn('Ativo', 'status', $editor, $this->dataset);
+            $editColumn->SetAllowSetToNull(true);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddEditColumn($editColumn);
         }
@@ -276,10 +291,6 @@
             $editor = new TextEdit('cargo_edit');
             $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddMultiEditColumn($editColumn);
@@ -321,10 +332,16 @@
             $editColumn = new CustomEditColumn('Cargo', 'cargo', $editor, $this->dataset);
             $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MaxLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MaxlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
-            $validator = new MinLengthValidator(11, StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('MinlengthValidationMessage'), $editColumn->GetCaption()));
-            $editor->GetValidatorCollection()->AddValidator($validator);
+            $this->ApplyCommonColumnEditProperties($editColumn);
+            $grid->AddInsertColumn($editColumn);
+            
+            //
+            // Edit column for status field
+            //
+            $editor = new CheckBox('status_edit');
+            $editColumn = new CustomEditColumn('Ativo', 'status', $editor, $this->dataset);
+            $editColumn->SetAllowSetToNull(true);
+            $editColumn->SetInsertDefaultValue('1');
             $this->ApplyCommonColumnEditProperties($editColumn);
             $grid->AddInsertColumn($editColumn);
             $grid->SetShowAddButton(true && $this->GetSecurityInfo()->HasAddGrant());
@@ -361,6 +378,14 @@
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_print');
             $grid->AddPrintColumn($column);
+            
+            //
+            // View column for status field
+            //
+            $column = new CheckboxViewColumn('status', 'status', 'Ativo', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setDisplayValues('<span class="pg-row-checkbox checked"></span>', '<span class="pg-row-checkbox"></span>');
+            $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
@@ -389,6 +414,14 @@
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_export');
             $grid->AddExportColumn($column);
+            
+            //
+            // View column for status field
+            //
+            $column = new CheckboxViewColumn('status', 'status', 'Ativo', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setDisplayValues('<span class="pg-row-checkbox checked"></span>', '<span class="pg-row-checkbox"></span>');
+            $grid->AddExportColumn($column);
         }
     
         private function AddCompareColumns(Grid $grid)
@@ -416,6 +449,14 @@
             $column->SetOrderable(true);
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('funcionarioGrid_cargo_handler_compare');
+            $grid->AddCompareColumn($column);
+            
+            //
+            // View column for status field
+            //
+            $column = new CheckboxViewColumn('status', 'status', 'Ativo', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setDisplayValues('<span class="pg-row-checkbox checked"></span>', '<span class="pg-row-checkbox"></span>');
             $grid->AddCompareColumn($column);
         }
     
@@ -453,14 +494,12 @@
         
         public function GetEnableModalGridInsert() { return true; }
         public function GetEnableModalGridEdit() { return true; }
-        
-        protected function GetEnableModalGridDelete() { return true; }
     
         protected function CreateGrid()
         {
             $result = new Grid($this, $this->dataset);
             if ($this->GetSecurityInfo()->HasDeleteGrant())
-               $result->SetAllowDeleteSelected(true);
+               $result->SetAllowDeleteSelected(false);
             else
                $result->SetAllowDeleteSelected(false);   
             
@@ -594,7 +633,15 @@
     
         protected function doCustomDrawRow($rowData, &$cellFontColor, &$cellFontSize, &$cellBgColor, &$cellItalicAttr, &$cellBoldAttr)
         {
-    
+            if($rowData['status']==0)
+            {
+            $rowData['status']="INATIVO";
+            $cellFontColor['status'] = 'red';
+            }
+            else
+            {
+            $cellFontColor['status'] = 'green';
+            }
         }
     
         protected function doExtendedCustomDrawRow($rowData, &$rowCellStyles, &$rowStyles, &$rowClasses, &$cellClasses)
@@ -619,7 +666,46 @@
     
         protected function doBeforeInsertRecord($page, &$rowData, $tableName, &$cancel, &$message, &$messageDisplayTime)
         {
-    
+            $cpf = $rowData['cpf'];
+            
+            	// Elimina possivel mascara
+            	$cpf = preg_replace("/[^0-9]/", "", $cpf);
+            	$cpf = str_pad($cpf, 11, '0', STR_PAD_LEFT);
+            	
+            	
+            
+            	// Verifica se nenhuma das sequências invalidas abaixo 
+            	// foi digitada. Caso afirmativo, retorna falso
+            	    if ($cpf == '00000000000' || 
+            		$cpf == '11111111111' || 
+            		$cpf == '22222222222' || 
+            		$cpf == '33333333333' || 
+            		$cpf == '44444444444' || 
+            		$cpf == '55555555555' || 
+            		$cpf == '66666666666' || 
+            		$cpf == '77777777777' || 
+            		$cpf == '88888888888' || 
+            		$cpf == '99999999999') {
+            		$cancel = true;
+            		$message = 'Digite um CPF válido';
+            	 // Calcula os digitos verificadores para verificar se o
+            	 // CPF é válido
+            	 } else {   
+            		
+            		for ($t = 9; $t < 11; $t++) {
+            			
+            			for ($d = 0, $c = 0; $c < $t; $c++) {
+            				$d += $cpf{$c} * (($t + 1) - $c);
+            			}
+            			$d = ((10 * $d) % 11) % 10;
+            			if ($cpf{$c} != $d) {
+                                    $cancel = true;
+                                    $message = 'Digite um CPF válido';
+            			}
+            		}
+            
+                        	
+            	}
         }
     
         protected function doBeforeUpdateRecord($page, $oldRowData, &$rowData, $tableName, &$cancel, &$message, &$messageDisplayTime)
@@ -724,8 +810,8 @@
     try
     {
         $Page = new funcionarioPage("funcionario", "funcionario.php", GetCurrentUserPermissionSetForDataSource("funcionario"), 'UTF-8');
-        $Page->SetTitle('Funcionario');
-        $Page->SetMenuLabel('Funcionario');
+        $Page->SetTitle('Funcionário');
+        $Page->SetMenuLabel('Funcionário');
         $Page->SetHeader(GetPagesHeader());
         $Page->SetFooter(GetPagesFooter());
         $Page->SetRecordPermission(GetCurrentUserRecordPermissionsForDataSource("funcionario"));

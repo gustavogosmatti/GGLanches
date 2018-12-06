@@ -44,7 +44,8 @@
                     new IntegerField('idcliente', true, true, true),
                     new StringField('nome', true),
                     new StringField('cpf', true),
-                    new StringField('email')
+                    new StringField('email'),
+                    new IntegerField('frequencia', true)
                 )
             );
         }
@@ -71,7 +72,16 @@
     
         protected function setupCharts()
         {
-    
+            $sql = 'SELECT * FROM (%source%) c
+            GROUP BY idcliente';$chart = new Chart('Chart01', Chart::TYPE_COLUMN, $this->dataset, $sql);
+            $chart->setTitle('Frequência de Clientes');
+            $chart->setHeight(500);
+            $chart->setDomainColumn('nome', 'nome', 'string');
+            $chart->addDataColumn('frequencia', 'FREQUENCIA DE CLIENTES', 'int', '##')
+                  ->setTooltipColumn('nome')
+                  ->setAnnotationColumn('frequencia')
+                  ->setAnnotationTextColumn('nome');
+            $this->addChart($chart, 0, ChartPosition::BEFORE_GRID, 12);
         }
     
         protected function getFiltersColumns()
@@ -80,7 +90,8 @@
                 new FilterColumn($this->dataset, 'idcliente', 'idcliente', 'Idcliente'),
                 new FilterColumn($this->dataset, 'nome', 'nome', 'Nome'),
                 new FilterColumn($this->dataset, 'cpf', 'cpf', 'CPF'),
-                new FilterColumn($this->dataset, 'email', 'email', 'Email')
+                new FilterColumn($this->dataset, 'email', 'email', 'Email'),
+                new FilterColumn($this->dataset, 'frequencia', 'frequencia', 'Frequência')
             );
         }
     
@@ -89,7 +100,8 @@
             $quickFilter
                 ->addColumn($columns['nome'])
                 ->addColumn($columns['cpf'])
-                ->addColumn($columns['email']);
+                ->addColumn($columns['email'])
+                ->addColumn($columns['frequencia']);
         }
     
         protected function setupColumnFilter(ColumnFilter $columnFilter)
@@ -117,16 +129,6 @@
                 $operation->setUseImage(true);
                 $actions->addOperation($operation);
                 $operation->OnShow->AddListener('ShowEditButtonHandler', $this);
-            }
-            
-            if ($this->GetSecurityInfo()->HasDeleteGrant())
-            {
-                $operation = new LinkOperation($this->GetLocalizerCaptions()->GetMessageString('Delete'), OPERATION_DELETE, $this->dataset, $grid);
-                $operation->setUseImage(true);
-                $actions->addOperation($operation);
-                $operation->OnShow->AddListener('ShowDeleteButtonHandler', $this);
-                $operation->SetAdditionalAttribute('data-modal-operation', 'delete');
-                $operation->SetAdditionalAttribute('data-delete-handler-name', $this->GetModalGridDeleteHandler());
             }
         }
     
@@ -163,6 +165,19 @@
             $column->SetOrderable(true);
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('clienteGrid_email_handler_list');
+            $column->setMinimalVisibility(ColumnVisibility::PHONE);
+            $column->SetDescription('');
+            $column->SetFixedWidth(null);
+            $grid->AddViewColumn($column);
+            
+            //
+            // View column for frequencia field
+            //
+            $column = new NumberViewColumn('frequencia', 'frequencia', 'Frequência', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $column->setMinimalVisibility(ColumnVisibility::PHONE);
             $column->SetDescription('');
             $column->SetFixedWidth(null);
@@ -212,7 +227,8 @@
             $editor = new TextEdit('email_edit');
             $editor->SetMaxLength(100);
             $editColumn = new CustomEditColumn('Email', 'email', $editor, $this->dataset);
-            $editColumn->SetAllowSetToNull(true);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $validator = new EMailValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('EmailValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -262,7 +278,8 @@
             $editor = new TextEdit('email_edit');
             $editor->SetMaxLength(100);
             $editColumn = new CustomEditColumn('Email', 'email', $editor, $this->dataset);
-            $editColumn->SetAllowSetToNull(true);
+            $validator = new RequiredValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('RequiredValidationMessage'), $editColumn->GetCaption()));
+            $editor->GetValidatorCollection()->AddValidator($validator);
             $validator = new EMailValidator(StringUtils::Format($this->GetLocalizerCaptions()->GetMessageString('EmailValidationMessage'), $editColumn->GetCaption()));
             $editor->GetValidatorCollection()->AddValidator($validator);
             $this->ApplyCommonColumnEditProperties($editColumn);
@@ -303,6 +320,16 @@
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('clienteGrid_email_handler_print');
             $grid->AddPrintColumn($column);
+            
+            //
+            // View column for frequencia field
+            //
+            $column = new NumberViewColumn('frequencia', 'frequencia', 'Frequência', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
+            $grid->AddPrintColumn($column);
         }
     
         protected function AddExportColumns(Grid $grid)
@@ -332,6 +359,16 @@
             $column->SetOrderable(true);
             $column->SetMaxLength(75);
             $column->SetFullTextWindowHandlerName('clienteGrid_email_handler_export');
+            $grid->AddExportColumn($column);
+            
+            //
+            // View column for frequencia field
+            //
+            $column = new NumberViewColumn('frequencia', 'frequencia', 'Frequência', $this->dataset);
+            $column->SetOrderable(true);
+            $column->setNumberAfterDecimal(0);
+            $column->setThousandsSeparator('.');
+            $column->setDecimalSeparator('');
             $grid->AddExportColumn($column);
         }
     
@@ -374,14 +411,12 @@
         
         public function GetEnableModalGridInsert() { return true; }
         public function GetEnableModalGridEdit() { return true; }
-        
-        protected function GetEnableModalGridDelete() { return true; }
     
         protected function CreateGrid()
         {
             $result = new Grid($this, $this->dataset);
             if ($this->GetSecurityInfo()->HasDeleteGrant())
-               $result->SetAllowDeleteSelected(true);
+               $result->SetAllowDeleteSelected(false);
             else
                $result->SetAllowDeleteSelected(false);   
             
@@ -399,6 +434,7 @@
             $result->setMultiEditAllowed($this->GetSecurityInfo()->HasEditGrant() && false);
             $result->setTableBordered(false);
             $result->setTableCondensed(false);
+            $result->SetTotal('email', PredefinedAggregate::$Average);
             
             $result->SetHighlightRowAtHover(false);
             $result->SetWidth('');
@@ -525,7 +561,46 @@
     
         protected function doBeforeInsertRecord($page, &$rowData, $tableName, &$cancel, &$message, &$messageDisplayTime)
         {
-    
+            $cpf = $rowData['cpf'];
+            
+            	// Elimina possivel mascara
+            	$cpf = preg_replace("/[^0-9]/", "", $cpf);
+            	$cpf = str_pad($cpf, 11, '0', STR_PAD_LEFT);
+            	
+            	
+            
+            	// Verifica se nenhuma das sequências invalidas abaixo 
+            	// foi digitada. Caso afirmativo, retorna falso
+            	    if ($cpf == '00000000000' || 
+            		$cpf == '11111111111' || 
+            		$cpf == '22222222222' || 
+            		$cpf == '33333333333' || 
+            		$cpf == '44444444444' || 
+            		$cpf == '55555555555' || 
+            		$cpf == '66666666666' || 
+            		$cpf == '77777777777' || 
+            		$cpf == '88888888888' || 
+            		$cpf == '99999999999') {
+            		$cancel = true;
+            		$message = 'Digite um CPF válido';
+            	 // Calcula os digitos verificadores para verificar se o
+            	 // CPF é válido
+            	 } else {   
+            		
+            		for ($t = 9; $t < 11; $t++) {
+            			
+            			for ($d = 0, $c = 0; $c < $t; $c++) {
+            				$d += $cpf{$c} * (($t + 1) - $c);
+            			}
+            			$d = ((10 * $d) % 11) % 10;
+            			if ($cpf{$c} != $d) {
+                                    $cancel = true;
+                                    $message = 'Digite um CPF válido';
+            			}
+            		}
+            
+                        	
+            	}
         }
     
         protected function doBeforeUpdateRecord($page, $oldRowData, &$rowData, $tableName, &$cancel, &$message, &$messageDisplayTime)

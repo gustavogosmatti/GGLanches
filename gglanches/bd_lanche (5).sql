@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 28-Nov-2018 às 22:38
+-- Generation Time: 06-Dez-2018 às 19:42
 -- Versão do servidor: 10.1.36-MariaDB
 -- versão do PHP: 7.2.11
 
@@ -32,8 +32,25 @@ CREATE TABLE `cliente` (
   `idcliente` int(11) NOT NULL,
   `nome` varchar(100) NOT NULL,
   `cpf` varchar(11) NOT NULL DEFAULT '',
-  `email` varchar(100) DEFAULT ''
+  `email` varchar(100) DEFAULT '',
+  `frequencia` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Extraindo dados da tabela `cliente`
+--
+
+INSERT INTO `cliente` (`idcliente`, `nome`, `cpf`, `email`, `frequencia`) VALUES
+(1, 'Gustavo Andrade', '11640738932', 'gustavo.gosmatti@hotmail.com', 1),
+(2, 'Valdir', '74565456456', 'valdir@hotmail.com', 1),
+(3, 'Marli', '45645641314', 'marli@hotmail.com', 0),
+(4, 'Rosa', '13213165789', 'rosa@gmail.com', 0),
+(5, 'Carlos', '85456146789', 'carlos@gmail.com', 0),
+(6, 'asdasdasd', '65465465465', NULL, 0),
+(7, 'asdas', '11640738932', NULL, 0),
+(8, 'Lucas', '71365354920', NULL, 0),
+(9, 'asdasda', '01234022044', 'sdasd@hotmail.com', 0),
+(10, 'Augusto', '11640738932', 'gustavo@hotmail.com', 0);
 
 -- --------------------------------------------------------
 
@@ -46,8 +63,19 @@ CREATE TABLE `funcionario` (
   `nome` varchar(150) NOT NULL,
   `cpf` varchar(11) NOT NULL DEFAULT '',
   `cargo` varchar(150) NOT NULL,
-  `status` tinyint(1) DEFAULT NULL
+  `status` bit(1) NOT NULL DEFAULT b'0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Extraindo dados da tabela `funcionario`
+--
+
+INSERT INTO `funcionario` (`idfuncionario`, `nome`, `cpf`, `cargo`, `status`) VALUES
+(1, 'Alfredo Azevedo', '12345678910', 'Balconista', b'1'),
+(2, 'Carlos', '98745632114', 'Balconista', b'1'),
+(3, 'Ana', '54789455212', 'Balconista', b'1'),
+(4, 'Bruno', '54146574563', 'Balconista', b'0'),
+(6, 'Tiago', '86756437054', 'Balconista', b'1');
 
 -- --------------------------------------------------------
 
@@ -82,7 +110,33 @@ INSERT INTO `itens` (`iditem`, `itemproduto`, `itemvalor`, `itemqtd`, `itemcodpe
 (87, 3, 10.00, 6, '181128180228FA'),
 (88, 19, 6.50, 8, '181128181928XU'),
 (89, 19, 6.50, 100, '181128190528AU'),
-(90, 21, 50.00, 50, '181128191628FY');
+(90, 21, 50.00, 50, '181128191628FY'),
+(92, 4, 3.50, 3, '181206091906HC'),
+(93, 1, 3.50, 1, '181206091906HC'),
+(94, 5, 6.00, 1, '181206091906HC'),
+(95, 5, 6.00, 2, '181206092306DE'),
+(96, 4, 3.50, 5, '181206092306DE'),
+(97, 2, 4.00, 4, '181206092406HB'),
+(98, 5, 6.00, 2, '181206092406HB'),
+(99, 2, 4.00, 5, '181206092706JL'),
+(100, 4, 3.50, 4, '181206092706JL'),
+(101, 5, 6.00, 4, '181206092706JL'),
+(102, 5, 6.00, 3, '181206092806SL'),
+(103, 4, 3.50, 5, '181206092806SL'),
+(104, 5, 6.00, 1, '181206093006HH'),
+(105, 1, 3.50, 5, '181206093006HH'),
+(106, 1, 3.50, 7, '181206114306FI'),
+(107, 5, 6.00, 5, '181206114306FI'),
+(109, 4, 3.50, 3, '181206125606UW'),
+(110, 5, 6.00, 1, '181206125606UW'),
+(113, 1, 3.50, 10, '181206125606UW'),
+(114, 2, 4.00, 7, '181206125606UW'),
+(115, 6, 4.50, 7, '181206092806SL'),
+(116, 1, 3.50, 1, '181206092806SL'),
+(117, 6, 4.50, 3, '181206091906HC'),
+(118, 2, 4.00, 10, '181206132906UC'),
+(119, 1, 3.50, 10, '181206142406DV'),
+(120, 5, 6.00, 3, '181206142406DV');
 
 -- --------------------------------------------------------
 
@@ -96,8 +150,20 @@ CREATE TABLE `lanche` (
   `descricao` varchar(150) NOT NULL,
   `preco` double(9,2) DEFAULT '0.00',
   `lancheqtd` int(11) NOT NULL DEFAULT '0',
-  `idprodutoestoque` int(11) DEFAULT NULL
+  `idprodutoestoque` int(11) DEFAULT NULL,
+  `vezespedido` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Extraindo dados da tabela `lanche`
+--
+
+INSERT INTO `lanche` (`idlanche`, `nome`, `descricao`, `preco`, `lancheqtd`, `idprodutoestoque`, `vezespedido`) VALUES
+(1, 'COXINHA', 'Frango com catupiry', 3.50, 19, NULL, 2),
+(2, 'PASTEL', 'Carne', 4.00, 13, NULL, 24),
+(4, 'QUIBE', '', 3.50, 30, NULL, 1),
+(5, 'COCA COLA 2L', '', 6.00, 27, NULL, 2),
+(6, 'ESFIRRA', 'Frango', 4.50, 20, NULL, 30);
 
 -- --------------------------------------------------------
 
@@ -112,6 +178,17 @@ CREATE TABLE `pedidos` (
   `idcliente` int(11) DEFAULT '0',
   `idfuncionario` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Extraindo dados da tabela `pedidos`
+--
+
+INSERT INTO `pedidos` (`idpedido`, `codigopedido`, `datapedido`, `idcliente`, `idfuncionario`) VALUES
+(1, '181206091906HC', '2018-12-05', 1, 4),
+(2, '181206092306DE', '2018-12-25', 5, 3),
+(3, '181206092406HB', '2018-12-28', 4, 1),
+(4, '181206092706JL', '2018-12-21', 3, 1),
+(6, '181206093006HH', '2018-12-05', 3, 2);
 
 -- --------------------------------------------------------
 
@@ -235,31 +312,31 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT for table `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `idfuncionario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `idfuncionario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `itens`
 --
 ALTER TABLE `itens`
-  MODIFY `iditem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
+  MODIFY `iditem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
 
 --
 -- AUTO_INCREMENT for table `lanche`
 --
 ALTER TABLE `lanche`
-  MODIFY `idlanche` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `idlanche` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `idpedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idpedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `produtoestoque`
